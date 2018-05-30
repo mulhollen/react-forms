@@ -14,25 +14,36 @@ export default class Authentication extends Component{
         }
     }
 
-    authenticateUser = (email, password) => {
-        // if(this.state.user.email === email && this.state.user.password === password){
-        //     this.setState({
-        //         authed: true
-        //     }) 
-        // }
-        fetch(`http://localhost:4000/users?email=${email}&&password=${password}`)
-        .then((data)=>{
-            return data.json();
-        }).then((userArray)=>{
-            console.log("USER ARRAY", userArray);
-            if(userArray.length===0){
-                console.log('user does not exist')
-            }else{this.setState({
-                user: userArray[0],
-                authed: true
+    componentDidMount() {
+        const stored = sessionStorage.getItem("user");
+        if(stored){
+            const parseDB = JSON.parse(stored);
+            console.log("parseDB", parseDB);
+            this.setState({
+                authed: true,
+                user: parseDB,
             })
         }
-        })
+    }
+
+    authenticateUser = (email, password) => {
+        console.log(email, password)
+        fetch(`http://localhost:3000/users?email=${email}&&${password}`)
+            .then((data) => {
+                return data.json();
+            }).then((userArray) => {
+                console.log("USER ARRAY", userArray);
+                if (userArray.length === 0) {
+                    console.log("USER DOES NOT EXIST")
+                } else {
+                    this.setState({
+                        user: userArray[0],
+                        authed: true
+                    })
+                    const userObj = JSON.stringify(userArray[0]);
+                    sessionStorage.setItem('user', userObj);
+                }
+            })
     }
 
     isUserAuthed = () => {
